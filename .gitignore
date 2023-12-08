@@ -1,0 +1,7 @@
+/__pycache__
+/Scripts
+/Lib
+/Include
+cacert-2023-08-22.pem
+cert.pem
+.env
