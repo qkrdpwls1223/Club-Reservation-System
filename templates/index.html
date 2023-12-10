@@ -187,7 +187,9 @@
         function addDivToCell(name, date, startTime, endTime) {
             // 요일 전처리
             var currentDate = new Date(date);
-            var dayOfWeek = currentDate.getDay();
+            var dayOfWeek = currentDate.getDay() - 1;
+            if (dayOfWeek == -1)
+                dayOfWeek = 6
             
             // 시작시간
             var start = startTime.split(':')
@@ -365,13 +367,13 @@
     <table id="timetable">
         <tr>
             <th>시간</th>
-            <th>일</th>
             <th>월</th>
             <th>화</th>
             <th>수</th>
             <th>목</th>
             <th>금</th>
             <th>토</th>
+            <th>일</th>
         </tr>
 
         <!-- 시간표 행 추가 -->

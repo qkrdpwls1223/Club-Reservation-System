@@ -54,10 +54,10 @@ def get_week_dates(date):
     # 현재 날짜의 요일을 가져오고, 일요일이면 0, 토요일이면 6
     current_weekday = date.weekday()
 
-    if current_weekday == 6:
-        sunday = date
-    else:
-        sunday = date - timedelta(days=current_weekday + 1)
+    # if current_weekday == 6:
+    #     sunday = date
+    # else:
+    sunday = date - timedelta(days=current_weekday)
     # 현재 날짜로부터 일요일까지의 날짜를 계산
     #print("오늘", sunday)
     # 토요일까지의 날짜를 계산
