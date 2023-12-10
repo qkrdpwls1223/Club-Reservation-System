@@ -69,6 +69,10 @@ def format_time(time):
     
     return time.split(':')[0].zfill(2) + ":" + time.split(':')[1].zfill(2)
 
+@app.route('/')
+def root():
+    return redirect('schedule')
+
 @app.route('/schedule')
 def index():
     date_str = request.args.get("day")
@@ -159,5 +163,5 @@ def cancel():
     return "success"
 
 if __name__ == '__main__':
-    app.debug = False
-    app.run(host='0.0.0.0', port=5000)
+    app.debug = True
+    app.run(host='127.0.0.1', port=5000)

@@ -289,12 +289,12 @@
             // "YYYY-MM-DD" 형식으로 날짜 출력
             var formattedDate = year + '-' + month + '-' + day;
 
-            window.location.assign('http://localhost:5000/schedule?day=' + formattedDate)
+            window.location.assign('/schedule?day=' + formattedDate)
         }
     </script>
 </head>
 <body>
-    <script>
+    <!-- <script>
         // 현재 URL 가져오기
         var currentURL = window.location.href;
     
@@ -303,7 +303,7 @@
     
         // history.replaceState를 사용하여 URL 수정 (브라우저 히스토리에 새로운 상태 추가하지 않음)
         history.replaceState({}, document.title, newURL);
-    </script>
+    </script> -->
     <h2>바로크 동방 예약 시스템</h2>
     <div class="reserve-form">
         <fieldset>
