@@ -125,16 +125,16 @@ def reservation():
                     return "fail"
         
 
-        # new_schedule = Schedule()
-        # new_schedule.name = _name
-        # new_schedule.date = _date
-        # new_schedule.startTime = format_time(_startTime)
-        # new_schedule.endTime = format_time(_endTime)
+        new_schedule = Schedule()
+        new_schedule.name = _name
+        new_schedule.date = _date
+        new_schedule.startTime = format_time(_startTime)
+        new_schedule.endTime = format_time(_endTime)
 
-        # result = db_connect(f"INSERT INTO schedule (date, startTime, endTime, name) VALUES ('{_date}', '{new_schedule.startTime}', '{new_schedule.endTime}', '{_name}');")
+        result = db_connect(f"INSERT INTO schedule (date, startTime, endTime, name) VALUES ('{_date}', '{new_schedule.startTime}', '{new_schedule.endTime}', '{_name}');")
 
-        # schedules.append(new_schedule)
-        # print(new_schedule)
+        schedules.append(new_schedule)
+        print(new_schedule)
 
     except:
         print("예약실패")
