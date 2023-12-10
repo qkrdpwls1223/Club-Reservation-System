@@ -107,23 +107,59 @@ def reservation():
         _startTime = request.json['startTime']
         _endTime = request.json['endTime']
 
-        new_schedule = Schedule()
-        new_schedule.name = _name
-        new_schedule.date = _date
-        new_schedule.startTime = format_time(_startTime)
-        new_schedule.endTime = format_time(_endTime)
+        result = db_connect(f"""
+        SELECT * FROM schedule
+        WHERE date = '{_date}';
+               """)
+        if not result:
+            print("넌")
+        else:
+            print(result)
+            for row in result:
+                print(row)
+                if row[1] <= _startTime and row[2] > _startTime:
+                    print("예약중복")
+                    return "fail"
+                elif row[1] < _endTime and row[2] >= _endTime:
+                    print("예약중복")
+                    return "fail"
+        
 
-        result = db_connect(f"INSERT INTO schedule (date, startTime, endTime, name) VALUES ('{_date}', '{new_schedule.startTime}', '{new_schedule.endTime}', '{_name}');")
+        # new_schedule = Schedule()
+        # new_schedule.name = _name
+        # new_schedule.date = _date
+        # new_schedule.startTime = format_time(_startTime)
+        # new_schedule.endTime = format_time(_endTime)
 
-        schedules.append(new_schedule)
-        print(new_schedule)
+        # result = db_connect(f"INSERT INTO schedule (date, startTime, endTime, name) VALUES ('{_date}', '{new_schedule.startTime}', '{new_schedule.endTime}', '{_name}');")
+
+        # schedules.append(new_schedule)
+        # print(new_schedule)
 
     except:
         print("예약실패")
-        return redirect(url_for("fail"))
+        return "fail"
     print("예약완료.")
-    return redirect(url_for("success"))
+    return "success"
 
+@app.route('/cancel', methods=["DELETE"])
+def cancel():
+    try:
+        _name = request.json['name']
+        _date = request.json['date']
+        _startTime = request.json['startTime']
+        _endTime = request.json['endTime']
+
+        result = db_connect(f"""
+        DELETE FROM schedule
+        WHERE date = '{_date}' AND startTime = '{_startTime}' AND endTime = '{_endTime}';
+               """)
+        print(result)
+    except:
+        print("예약취소실패")
+        return "fail"
+    print("예약취소완료.")
+    return "success"
 @app.route('/success')
 def success():
     return render_template("success.html")

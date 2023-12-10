@@ -56,6 +56,10 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             z-index: 1000;
         }
+        .modal * {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
 
         .modal-content {
             font-size: 18px;
@@ -71,11 +75,33 @@
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
+
+        .day-term {
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .day-term button {
+            padding: 5px;
+            margin: 5px;
+        }
+
+        #day-term-label {
+            font-size: 1.4em;
+        }
+        .reserve-form * {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .reserve-form button {
+            float: right;
+        }
     </style>
     <script>
         // 표시 기간 날짜
         function setDayTerm(start, end) {
-            const label = document.getElementById("day-term")
+            const label = document.getElementById("day-term-label")
             label.innerHTML = start + " ~ " + end
         }
 
@@ -99,7 +125,8 @@
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
                     if (xhr.status == 200) {
-                        callback(true)
+                        console.log("리스폰: ", xhr.responseText)
+                        callback(xhr.responseText)
                     } else {
                         callback(false)
                     }
@@ -115,18 +142,34 @@
             var startMin = document.getElementById('startMin').value
             var endHour = document.getElementById('endHour').value
             var endMin = document.getElementById('endMin').value
-            console.log(startHour,"시",startMin,"분")
-            console.log(date)
 
+            var startTime = formatTime(startHour) + ":" + formatTime(startMin)
+            var endTime = formatTime(endHour) + ":" + formatTime(endMin)
+            console.log(date)
+            console.log("시작시간: " + startTime + ", 종료시간: " + endTime)
+
+            if (startTime == endTime) {
+                alert("예약 실패: 시작시간과 종료시간이 같습니다.")
+                return 0;
+            } else if (endTime < startTime) {
+                alert("예약 실패: 종료시간이 시작시간보다 빠릅니다.")
+                return 0;
+            } else if (song == "") {
+                alert("예약 실패: 노래이름을 입력해주세요.")
+                return 0;
+            }
             sendJSON(name, date, startTime, endTime, function (result) {
                 if (result) {
                     console.log("전송 성공")
+                    console.log("결과:", result)
+                    if (result == "success") {
+                        console.log("블럭 생성")
+                        addDivToCell(song, date, startTime, endTime);
+                    }
                 } else {
                     console.log("전송 실패")
                 }
             })
-            console.log("블럭 그리기")
-            addDivToCell(song, date, startHour + ":" + startMin, endHour + ":" + endMin);
         }
 
         function addDivToCell(name, date, startTime, endTime) {
@@ -157,11 +200,7 @@
 
                 // 이벤트 추가
                 div.onclick = function() {
-                    const content = `
-                    노래: ${name}<br>
-                    날짜: ${date}<br>
-                    시간: ${startTime} ~ ${endTime}`
-                    showModal(content)
+                    showModal(name, date, `${startTime}~${endTime}`)
                 }
 
 
@@ -172,12 +211,12 @@
             };
         }
 
-        function showModal(content) {
+        function showModal(name, date, time) {
             var modal = document.getElementById('myModal');
             var overlay = document.getElementById('overlay');
-            var modalContent = document.getElementById('modalContent');
-
-            modalContent.innerHTML = content;
+            document.getElementById('modal-content-song').innerHTML = name
+            document.getElementById('modal-content-date').innerHTML = date
+            document.getElementById('modal-content-time').innerHTML = time
 
             // 모달과 오버레이 표시
             modal.style.display = 'block';
@@ -192,60 +231,95 @@
             modal.style.display = 'none';
             overlay.style.display = 'none';
         }
+
+        function reserveCancel() {
+            var song = document.getElementById('modal-content-song').innerHTML
+            var date = document.getElementById('modal-content-date').innerHTML
+            var time = document.getElementById('modal-content-time').innerHTML.split("~")
+            
+            var jsonData = {
+                name: song,
+                date: date,
+                startTime: time[0],
+                endTime: time[1]
+            };
+            var xhr = new XMLHttpRequest();
+            xhr.open('DELETE', '/cancel', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        console.log("리스폰: ", xhr.responseText)
+                        if (xhr.responseText) {
+                            alert("취소가 완료되었습니다.")
+                            location.reload();
+                        }
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(jsonData));
+        }
     </script>
 </head>
 <body>
-    
-    
-    <h2>전일 시간표</h2>
-    <label for="song">노래명: </label>
-    <input type="text" id="song" placeholder="노래명 또는 팀명">
-    <br />
-    <label for="date">날짜: </label>
-    <input type="date" id="date">
-    <script>
-        var today = new Date();
-
-        // 월이 0부터 시작하므로 1을 더해줌
-        var month = (today.getMonth() + 1).toString().padStart(2, '0');
-        var day = today.getDate().toString().padStart(2, '0');
-
-        var formattedToday = today.getFullYear() + '-' + month + '-' + day;
-
-        document.getElementById('date').value = formattedToday;
-    </script>
-    <br />
-    <label for="startHour">시간: </label>
-    <select id="startHour">
-        <script>
-            for (var h = 6; h < 23; h++) {
-                document.write(`<option value="${formatTime(h)}">${formatTime(h)}</option>`)
-            }
-        </script>
-    </select>
-    <label for="startHour">시</label>
-    <select id="startMin">
-        <option value="0">00</option>
-        <option value="30">30</option>
-    </select>
-    <label for="startMin">분</label>
-    <label>~</label>
-    <select id="endHour">
-        <script>
-            for (var h = 6; h < 23; h++) {
-                document.write(`<option value="${formatTime(h)}">${formatTime(h)}</option>`)
-            }
-        </script>
-    </select>
-    <label for="endHour">시</label>
-    <select id="endMin">
-        <option value="0">00</option>
-        <option value="30">30</option>
-    </select>
-    <label for="endMin">분</label>
-    <br />
-    <button onclick="createSchedule()">일정 추가</button>
-    <h2 id="day-term"></h2>
+    <h2>바로크 동방 예약 시스템</h2>
+    <div class="reserve-form">
+        <fieldset>
+            <legend>예약 정보 입력</legend>
+            <label for="song">노래명: </label>
+            <input type="text" id="song" placeholder="노래명 또는 팀명">
+            <br />
+            <label for="date">날짜: </label>
+            <input type="date" id="date">
+            <script>
+                var today = new Date();
+                
+                // 월이 0부터 시작하므로 1을 더해줌
+                var month = (today.getMonth() + 1).toString().padStart(2, '0');
+                var day = today.getDate().toString().padStart(2, '0');
+                
+                var formattedToday = today.getFullYear() + '-' + month + '-' + day;
+                
+                document.getElementById('date').value = formattedToday;
+            </script>
+            <br />
+            <label for="startHour">시간: </label>
+            <select id="startHour">
+                <script>
+                    for (var h = 6; h < 23; h++) {
+                        document.write(`<option value="${formatTime(h)}">${formatTime(h)}</option>`)
+                    }
+                    </script>
+            </select>
+            <label for="startHour">시</label>
+            <select id="startMin">
+                <option value="0">00</option>
+                <option value="30">30</option>
+            </select>
+            <label for="startMin">분</label>
+            <label>~</label>
+            <select id="endHour">
+                <script>
+                    for (var h = 6; h < 23; h++) {
+                        document.write(`<option value="${formatTime(h)}">${formatTime(h)}</option>`)
+                    }
+                    </script>
+            </select>
+            <label for="endHour">시</label>
+            <select id="endMin">
+                <option value="0">00</option>
+                <option value="30">30</option>
+            </select>
+            <label for="endMin">분</label>
+            <br />
+            <button onclick="createSchedule()">일정 추가</button>
+        </fieldset>
+    </div>
+    <div class="day-term">
+        <button>←</button>
+        <label id="day-term-label"></label>
+        <button>→</button>
+    </div>
     <table id="timetable">
         <tr>
             <th>시간</th>
@@ -274,26 +348,39 @@
 
     <!-- 모달 -->
     <div id="myModal" class="modal">
-        <p id="modalContent" class="modal-content"></p>
+        <label>노래: </label>
+        <label id="modal-content-song"></label>
+        <br />
+        <label>날짜: </label>
+        <label id="modal-content-date"></label>
+        <br />
+        <label>시간: </label>
+        <label id="modal-content-time"></label>
+        <br />
+        <button onclick="reserveCancel()">예약취소</button>
         <button onclick="closeModal()">닫기</button>
     </div>
 
-    <!-- 오버레이 -->
+    <!-- 모달 띄울때 배경 검게 해주는 오버레이 -->
     <div id="overlay" class="overlay" onclick="closeModal()"></div>
+    <!-- 스케줄 로딩하는 스크립트 -->
     <script>
         var schedule = "{{ schedule }}"
         var start_day = "{{ start_day }}"
         var end_day = "{{ end_day }}"
-        console.log("시작날짜: ", start_day)
-        console.log("종료날짜: ", end_day)
+        //console.log("시작날짜: ", start_day)
+        //console.log("종료날짜: ", end_day)
         setDayTerm(start_day,end_day)
         const decodedJsonString = schedule.replace(/&#34;/g, '"').replace(/&#39;/g, ""); // &#39;을 '로 변환
-        console.log(decodedJsonString)
+        //console.log(decodedJsonString)
         const data = JSON.parse(decodedJsonString)
-        console.log(data)
+        //console.log(data)
         for (const row of data) {
             addDivToCell(row.name, row.date, row.startTime, row.endTime)
         }
     </script>
+    <footer>
+        <p>&copy; 2023 YJ.Park. All rights reserved.</p>
+    </footer>
 </body>
 </html>
