@@ -132,8 +132,7 @@ def reservation():
         result = db_connect(f"INSERT INTO schedule (date, startTime, endTime, name) VALUES ('{_date}', '{new_schedule.startTime}', '{new_schedule.endTime}', '{_name}');")
 
         schedules.append(new_schedule)
-        print(new_schedule)
-
+        print("새로운 스케줄 생성: ", _name,", ",_date,", ", new_schedule.startTime, "~", new_schedule.endTime)
     except:
         print("예약실패")
         return "fail"
@@ -152,7 +151,7 @@ def cancel():
         DELETE FROM schedule
         WHERE date = '{_date}' AND startTime = '{_startTime}' AND endTime = '{_endTime}';
                """)
-        print(result)
+        print("예약취소: ", _date, ", ", _startTime, "~", _endTime)
     except:
         print("예약취소실패")
         return "fail"
