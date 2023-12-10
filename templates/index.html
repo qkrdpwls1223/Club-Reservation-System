@@ -73,6 +73,12 @@
         }
     </style>
     <script>
+        // 표시 기간 날짜
+        function setDayTerm(start, end) {
+            const label = document.getElementById("day-term")
+            label.innerHTML = start + " ~ " + end
+        }
+
         function formatTime(hour) {
             return hour.toString().padStart(2, '0');
         }
@@ -239,6 +245,7 @@
     <label for="endMin">분</label>
     <br />
     <button onclick="createSchedule()">일정 추가</button>
+    <h2 id="day-term"></h2>
     <table id="timetable">
         <tr>
             <th>시간</th>
@@ -275,6 +282,11 @@
     <div id="overlay" class="overlay" onclick="closeModal()"></div>
     <script>
         var schedule = "{{ schedule }}"
+        var start_day = "{{ start_day }}"
+        var end_day = "{{ end_day }}"
+        console.log("시작날짜: ", start_day)
+        console.log("종료날짜: ", end_day)
+        setDayTerm(start_day,end_day)
         const decodedJsonString = schedule.replace(/&#34;/g, '"').replace(/&#39;/g, ""); // &#39;을 '로 변환
         console.log(decodedJsonString)
         const data = JSON.parse(decodedJsonString)

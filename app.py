@@ -49,15 +49,13 @@ class Schedule:
     startTime = '06:00'
     endTime = '07:00'
 
-def get_week_dates():
-    # 현재 날짜를 가져옴
-    today = datetime.today()
+def get_week_dates(date):
 
     # 현재 날짜의 요일을 가져오고, 일요일이면 0, 토요일이면 6
-    current_weekday = today.weekday()
+    current_weekday = date.weekday()
 
     # 현재 날짜로부터 일요일까지의 날짜를 계산
-    sunday = today - timedelta(days=current_weekday+1)
+    sunday = date - timedelta(days=current_weekday)
 
     # 토요일까지의 날짜를 계산
     saturday = sunday + timedelta(days=6)
@@ -68,9 +66,18 @@ def format_time(time):
     
     return time.split(':')[0].zfill(2) + ":" + time.split(':')[1].zfill(2)
 
-@app.route('/')
+@app.route('/schedule')
 def index():
-    sun, sat = get_week_dates()
+    date_str = request.args.get("day")
+    print(date_str)
+    
+    # 값을 입력했으면 입력한대로, 아니면 오늘
+    if date_str == None:
+        sun, sat = get_week_dates(datetime.now())
+    else:
+        sun, sat = get_week_dates(datetime.strptime(date_str, "%Y-%m-%d"))
+
+
     print(sun, "~", sat)
     result = db_connect(f"""
         SELECT * FROM schedule
@@ -83,7 +90,9 @@ def index():
         dict = {'date': parsed_date, 'startTime': row[1], 'endTime': row[2], 'name': row[3]}
         schedule.append(json.dumps(dict))
     print(schedule)
-    return render_template("index.html", schedule=schedule)
+    print(sun)
+    print(sat)
+    return render_template("index.html", schedule=schedule, start_day=sun, end_day=sat)
 
 @app.route('/test')
 def test():
