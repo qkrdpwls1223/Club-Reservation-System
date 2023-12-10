@@ -17,6 +17,9 @@
             padding: 10px;
             position: relative; /* td를 기준으로 position 설정 */
         }
+        .box p {
+            overflow: hidden;
+        }
 
         th {
             background-color: #f2f2f2;
@@ -97,6 +100,12 @@
         .reserve-form button {
             float: right;
         }
+        footer {
+            margin-top: 10px;
+        }
+        footer * {
+            margin: 0px;
+        }
     </style>
     <script>
         // 표시 기간 날짜
@@ -164,8 +173,11 @@
                     console.log("결과:", result)
                     if (result == "success") {
                         console.log("블럭 생성")
-                        addDivToCell(song, date, startTime, endTime);
-                    }
+                        alert("예약이 완료되었습니다.")
+                        location.reload();
+                    } else if (result == "overlap") {
+                        alert("예약 시간이 중복됩니다.")
+                    } 
                 } else {
                     console.log("전송 실패")
                 }
@@ -282,6 +294,16 @@
     </script>
 </head>
 <body>
+    <script>
+        // 현재 URL 가져오기
+        var currentURL = window.location.href;
+    
+        // URL에서 쿼리 매개변수 제거
+        var newURL = currentURL.split('?')[0];
+    
+        // history.replaceState를 사용하여 URL 수정 (브라우저 히스토리에 새로운 상태 추가하지 않음)
+        history.replaceState({}, document.title, newURL);
+    </script>
     <h2>바로크 동방 예약 시스템</h2>
     <div class="reserve-form">
         <fieldset>
@@ -338,7 +360,7 @@
     <div class="day-term">
         <button onclick=moveWeek(-1)>←</button>
         <label id="day-term-label"></label>
-        <button onclick=moveWeek(7)>→</button>
+        <button onclick=moveWeek(8)>→</button>
     </div>
     <table id="timetable">
         <tr>
@@ -400,6 +422,7 @@
         }
     </script>
     <footer>
+        <h5>불편사항 및 오류 신고는 yejinn_0819@naver.com</h5>
         <p>&copy; 2023 YJ.Park. All rights reserved.</p>
     </footer>
 </body>

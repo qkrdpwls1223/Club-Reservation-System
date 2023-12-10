@@ -50,13 +50,16 @@ class Schedule:
     endTime = '07:00'
 
 def get_week_dates(date):
-
+    print("date:", date.weekday())
     # 현재 날짜의 요일을 가져오고, 일요일이면 0, 토요일이면 6
     current_weekday = date.weekday()
 
+    if current_weekday == 6:
+        sunday = date
+    else:
+        sunday = date - timedelta(days=current_weekday + 1)
     # 현재 날짜로부터 일요일까지의 날짜를 계산
-    sunday = date - timedelta(days=current_weekday)
-
+    print("오늘", sunday)
     # 토요일까지의 날짜를 계산
     saturday = sunday + timedelta(days=6)
 
@@ -69,7 +72,7 @@ def format_time(time):
 @app.route('/schedule')
 def index():
     date_str = request.args.get("day")
-    print(date_str)
+    #print(date_str)
     
     # 값을 입력했으면 입력한대로, 아니면 오늘
     if date_str == None:
@@ -78,7 +81,7 @@ def index():
         sun, sat = get_week_dates(datetime.strptime(date_str, "%Y-%m-%d"))
 
 
-    print(sun, "~", sat)
+    #print(sun, "~", sat)
     result = db_connect(f"""
         SELECT * FROM schedule
         WHERE date BETWEEN '{sun}' AND '{sat}';
@@ -89,9 +92,9 @@ def index():
         parsed_date = row[0].strftime("%Y-%m-%d")
         dict = {'date': parsed_date, 'startTime': row[1], 'endTime': row[2], 'name': row[3]}
         schedule.append(json.dumps(dict))
-    print(schedule)
-    print(sun)
-    print(sat)
+    # print(schedule)
+    # print(sun)
+    # print(sat)
     return render_template("index.html", schedule=schedule, start_day=sun, end_day=sat)
 
 @app.route('/reservation', methods=['POST'])
@@ -114,10 +117,10 @@ def reservation():
                 print(row)
                 if row[1] <= _startTime and row[2] > _startTime:
                     print("예약중복")
-                    return "fail"
+                    return "overlap"
                 elif row[1] < _endTime and row[2] >= _endTime:
                     print("예약중복")
-                    return "fail"
+                    return "overlap"
         
 
         new_schedule = Schedule()
