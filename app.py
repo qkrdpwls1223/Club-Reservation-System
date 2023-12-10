@@ -94,11 +94,6 @@ def index():
     print(sat)
     return render_template("index.html", schedule=schedule, start_day=sun, end_day=sat)
 
-@app.route('/test')
-def test():
-    return redirect(url_for("index"))
-
-
 @app.route('/reservation', methods=['POST'])
 def reservation():
     try:
@@ -160,13 +155,6 @@ def cancel():
         return "fail"
     print("예약취소완료.")
     return "success"
-@app.route('/success')
-def success():
-    return render_template("success.html")
-
-@app.route('/fail')
-def fail():
-    return render_template("fail.html")
 
 if __name__ == '__main__':
     app.debug = True
