@@ -27,7 +27,7 @@ def db_connect(sql):
         cursor = connection.cursor()
 
         # Execute "SHOW TABLES" query
-        print(sql)
+        #print(sql)
         cursor.execute(sql)
         # Fetch all the rows
         result = cursor.fetchall()
@@ -50,7 +50,7 @@ class Schedule:
     endTime = '07:00'
 
 def get_week_dates(date):
-    print("date:", date.weekday())
+    #print("date:", date.weekday())
     # 현재 날짜의 요일을 가져오고, 일요일이면 0, 토요일이면 6
     current_weekday = date.weekday()
 
@@ -59,7 +59,7 @@ def get_week_dates(date):
     else:
         sunday = date - timedelta(days=current_weekday + 1)
     # 현재 날짜로부터 일요일까지의 날짜를 계산
-    print("오늘", sunday)
+    #print("오늘", sunday)
     # 토요일까지의 날짜를 계산
     saturday = sunday + timedelta(days=6)
 
