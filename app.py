@@ -132,6 +132,7 @@ def mentor():
 def reservation():
     try:
         new_schedule = save_reserve(request.json)
+
         if new_schedule == "overlap":
             return "overlap"
         elif type(new_schedule) == Schedule:
@@ -149,8 +150,6 @@ def multi_reservation():
     results = []
 
     for data in request.json:
-        print(data)
-        print(type(data))
 
         try:
             new_schedule = save_reserve(data)
