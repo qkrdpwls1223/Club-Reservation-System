@@ -4,4 +4,5 @@
 /Include
 cacert-2023-08-22.pem
 cert.pem
-.env
+database.env
+/myenv

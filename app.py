@@ -2,23 +2,20 @@ from flask import Flask, render_template, redirect, url_for, request
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import json
-
-# Load environment variables from the .env file
-load_dotenv()
 import os
 import MySQLdb
+
+# Load environment variables from the .env file
+load_dotenv(dotenv_path="database.env")
 
 # Connect to the database
 connection = MySQLdb.connect(
   host=os.getenv("DATABASE_HOST"),
+  port=int(os.getenv("DATABASE_PORT")),
   user=os.getenv("DATABASE_USERNAME"),
   passwd=os.getenv("DATABASE_PASSWORD"),
   db=os.getenv("DATABASE"),
-  autocommit=True,
-  ssl_mode="VERIFY_IDENTITY",
-  # See https://planetscale.com/docs/concepts/secure-connections#ca-root-configuration
-  # to determine the path to your operating systems certificate file.
-  ssl={ "ca": "cacert-2023-08-22.pem" }
+  autocommit=True
 )
 
 def db_connect(sql):
@@ -44,7 +41,8 @@ app = Flask(__name__)
 schedules = []
 
 class Schedule:
-    name = ''
+    songName = ''
+    userName = ''
     date = '2000-01-01'
     startTime = '06:00'
     endTime = '07:00'
@@ -90,58 +88,120 @@ def index():
         SELECT * FROM schedule
         WHERE date BETWEEN '{sun}' AND '{sat}';
                """)
+    #print(result)
+
     schedule = []
 
     for row in result:
-        parsed_date = row[0].strftime("%Y-%m-%d")
-        dict = {'date': parsed_date, 'startTime': row[1], 'endTime': row[2], 'name': row[3]}
+        parsed_date = row[1].strftime("%Y-%m-%d")
+        dict = {'date': parsed_date, 'startTime': row[2], 'endTime': row[3], 'songName': row[4], 'userName': row[5], 'color': row[6]}
+        schedule.append(json.dumps(dict))
+    #print(schedule)
+    
+    return render_template("index.html", schedule=schedule, start_day=sun, end_day=sat)
+
+@app.route('/mentoring')
+def mentor():
+    date_str = request.args.get("day")
+    #print(date_str)
+    
+    # 값을 입력했으면 입력한대로, 아니면 오늘
+    if date_str == None:
+        sun, sat = get_week_dates(datetime.now())
+    else:
+        sun, sat = get_week_dates(datetime.strptime(date_str, "%Y-%m-%d"))
+
+
+    #print(sun, "~", sat)
+    result = db_connect(f"""
+        SELECT * FROM schedule
+        WHERE date BETWEEN '{sun}' AND '{sat}';
+               """)
+    schedule = []
+
+    for row in result:
+        parsed_date = row[1].strftime("%Y-%m-%d")
+        dict = {'date': parsed_date, 'startTime': row[2], 'endTime': row[3], 'songName': row[4], 'userName': row[5], 'color': row[6]}
         schedule.append(json.dumps(dict))
     # print(schedule)
     # print(sun)
     # print(sat)
-    return render_template("index.html", schedule=schedule, start_day=sun, end_day=sat)
+    return render_template("mentoring.html", schedule=schedule, start_day=sun, end_day=sat)
 
 @app.route('/reservation', methods=['POST'])
 def reservation():
     try:
-        _name = request.json['name']
-        _date = request.json['date']
-        _startTime = request.json['startTime']
-        _endTime = request.json['endTime']
-
-        result = db_connect(f"""
-        SELECT * FROM schedule
-        WHERE date = '{_date}';
-               """)
-        if not result:
-            print("넌")
-        else:
-            print(result)
-            for row in result:
-                print(row)
-                if row[1] <= _startTime and row[2] > _startTime:
-                    print("예약중복")
-                    return "overlap"
-                elif row[1] < _endTime and row[2] >= _endTime:
-                    print("예약중복")
-                    return "overlap"
-        
-
-        new_schedule = Schedule()
-        new_schedule.name = _name
-        new_schedule.date = _date
-        new_schedule.startTime = format_time(_startTime)
-        new_schedule.endTime = format_time(_endTime)
-
-        result = db_connect(f"INSERT INTO schedule (date, startTime, endTime, name) VALUES ('{_date}', '{new_schedule.startTime}', '{new_schedule.endTime}', '{_name}');")
-
-        schedules.append(new_schedule)
-        print("새로운 스케줄 생성: ", _name,", ",_date,", ", new_schedule.startTime, "~", new_schedule.endTime)
-    except:
+        new_schedule = save_reserve(request.json)
+        if new_schedule == "overlap":
+            return "overlap"
+        elif type(new_schedule) == Schedule:
+            schedules.append(new_schedule)
+            print("새로운 스케줄 생성: ", new_schedule.songName,", ",new_schedule.date,", ", new_schedule.startTime, "~", new_schedule.endTime)
+    except Exception as e:
+        print(e)
         print("예약실패")
         return "fail"
     print("예약완료.")
     return "success"
+
+@app.route('/reservation/multiple', methods=['POST'])
+def multi_reservation():
+    results = []
+
+    for data in request.json:
+        print(data)
+        print(type(data))
+
+        try:
+            new_schedule = save_reserve(data)
+            if new_schedule == "overlap":
+                print("overlap")
+                results.append([data['date'], "overlap"])
+            elif type(new_schedule) == Schedule:
+                schedules.append(new_schedule)
+                results.append([data['date'], "success"])
+                print("새로운 스케줄 생성: ", new_schedule.songName,", ",new_schedule.date,", ", new_schedule.startTime, "~", new_schedule.endTime)
+        except Exception as e:
+            print(e)
+            print("예약실패")
+            results.append([data['date'], "fail"])
+    return results
+
+
+def save_reserve(json_data):
+    _songName = json_data['songName']
+    _userName = json_data['userName']
+    _date = json_data['date']
+    _startTime = json_data['startTime']
+    _endTime = json_data['endTime']
+    _color = json_data['color']
+
+    result = db_connect(f"""
+    SELECT * FROM schedule
+    WHERE date = '{_date}';
+            """)
+    if result:
+        print(result)
+        for row in result:
+            print(row)
+            if row[2] <= _startTime and row[3] > _startTime:
+                print("예약중복")
+                return "overlap"
+            elif row[2] < _endTime and row[3] >= _endTime:
+                print("예약중복")
+                return "overlap"
+    
+
+    new_schedule = Schedule()
+    new_schedule.songName = _songName
+    new_schedule.userName = _userName
+    new_schedule.date = _date
+    new_schedule.startTime = format_time(_startTime)
+    new_schedule.endTime = format_time(_endTime)
+
+    result = db_connect(f"INSERT INTO schedule (date, startTime, endTime, songName, userName, color) VALUES ('{_date}', '{new_schedule.startTime}', '{new_schedule.endTime}', '{_songName}', '{_userName}', '{_color}');")
+
+    return new_schedule
 
 @app.route('/cancel', methods=["DELETE"])
 def cancel():
@@ -163,5 +223,5 @@ def cancel():
     return "success"
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run(host='127.0.0.1', port=5000)
+    app.debug = False
+    app.run(host='0.0.0.0', port=5000)
