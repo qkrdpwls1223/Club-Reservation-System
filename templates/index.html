@@ -209,10 +209,14 @@
                 var div = document.createElement('div');
                 div.className = 'box';
                 div.style.height = String(100 * (end[0] - start[0])) + '%'
-
+                console.log(songName + ":" + end[1])
+                console.log(startTime + "~" + endTime)
                 // 시작시간이 n시 30분부터 시작할 때
                 if (start[1] == '30') {
                     div.style.top = '50%'
+                    if (end[1] == '00') {
+                        div.style.height = parseInt(div.style.height) - 50 + '%'
+                    }
                 }
                 // 종료시간이 n시 30분까지일 때
                 if (end[1] == '30') {
@@ -372,11 +376,11 @@
             </select>
             <label for="endMin">분</label>
             <br />
-            <div>
+            <!-- <div>
                 <label for="pw">비밀번호: </label>
                 <input type="text" id="pw" placeholder="4자리 숫자">
                 <br />
-            </div>
+            </div> -->
             <button onclick="createSchedule()">예약하기</button>
         </fieldset>
     </div>
@@ -402,7 +406,7 @@
         <script>
             for (var hour = 6; hour < 26; hour++) {
                 document.write('<tr id="row' + hour + '">');
-                document.write('<td>' + formatTime(hour) + ':00' + ' - ' + formatTime(hour + 1) + ':00' + '</td>');
+                document.write('<td>' + formatTime(hour) + ':00'+ '</td>');
                 for (var day = 0; day < 7; day++) {
                     document.write('<td id="cell' + hour + '-' + day + '"></td>');
                 }
@@ -447,6 +451,7 @@
 
         try {
             const data = JSON.parse(decodedJsonString);
+            console.log(data)
             for (const row of data) {
                 if (row.color == undefined) {
                     row.color = "#F7FE2E"
