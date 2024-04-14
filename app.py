@@ -5,6 +5,34 @@ import json
 import os
 import MySQLdb
 
+import logging
+import os
+
+# 2. 로그 저장 폴더. 없을 시 생성
+if not os.path.isdir('logs'):
+  os.mkdir('logs')
+  
+# 3. 기본 설정된 werkzeug 로그 끄기
+logging.getLogger('werkzeug').disabled = True
+
+# 4. 로거 설정
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)  # 로거의 최소 로그 레벨 설정
+
+# 콘솔 핸들러 생성 및 설정
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+console_formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s', '%Y/%m/%d %H:%M:%S')
+console_handler.setFormatter(console_formatter)
+logger.addHandler(console_handler)
+
+# 파일 핸들러 생성 및 설정
+file_handler = logging.FileHandler("logs/server.log", encoding='utf-8')
+file_handler.setLevel(logging.DEBUG)
+file_formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s', '%Y/%m/%d %H:%M:%S')
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
+
 # Load environment variables from the .env file
 load_dotenv(dotenv_path="database.env")
 
@@ -123,49 +151,50 @@ def mentor():
         parsed_date = row[1].strftime("%Y-%m-%d")
         dict = {'date': parsed_date, 'startTime': row[2], 'endTime': row[3], 'songName': row[4], 'userName': row[5], 'color': row[6]}
         schedule.append(json.dumps(dict))
-    # print(schedule)
-    # print(sun)
-    # print(sat)
+
     return render_template("mentoring.html", schedule=schedule, start_day=sun, end_day=sat)
 
 @app.route('/reservation', methods=['POST'])
 def reservation():
+    app.logger.info(f'[{request.method}] {request.path}')
     try:
         new_schedule = save_reserve(request.json)
 
         if new_schedule == "overlap":
+            app.logger.info("예약중복: " +  request.json['date'] + ", " + request.json['startTime'] + "~" + request.json['endTime'])
             return "overlap"
         elif type(new_schedule) == Schedule:
             schedules.append(new_schedule)
-            print("새로운 스케줄 생성: ", new_schedule.songName,", ",new_schedule.date,", ", new_schedule.startTime, "~", new_schedule.endTime)
+            app.logger.info("예약성공: " + new_schedule.songName + ", " + new_schedule.date + ", " + new_schedule.startTime + "~" + new_schedule.endTime)
     except Exception as e:
-        print(e)
-        print("예약실패")
+        app.logger.error("예약실패: " +  request.json['date'] + ", " + request.json['startTime'] + "~" + request.json['endTime'])
+        app.logger.error(e)
+
         return "fail"
-    print("예약완료.")
     return "success"
 
 @app.route('/reservation/multiple', methods=['POST'])
 def multi_reservation():
-    results = []
+    app.logger.info(f'[{request.method}] {request.path}')
+    results = ''
 
     for data in request.json:
-
         try:
             new_schedule = save_reserve(data)
             if new_schedule == "overlap":
-                print("overlap")
-                results.append([data['date'], "overlap"])
+                # print("overlap")
+                results += data['date'] + ": " , "예약 시간 중복\n"
+                app.logger.info("예약중복: " + new_schedule.songName + ", " + new_schedule.date +", " + new_schedule.startTime + "~" + new_schedule.endTime)
             elif type(new_schedule) == Schedule:
                 schedules.append(new_schedule)
-                results.append([data['date'], "success"])
-                print("새로운 스케줄 생성: ", new_schedule.songName,", ",new_schedule.date,", ", new_schedule.startTime, "~", new_schedule.endTime)
+                results += data['date'] + ": " , "예약 성공\n"
+                app.logger.info("예약성공: " + new_schedule.songName + ", " + new_schedule.date + ", " + new_schedule.startTime + "~" + new_schedule.endTime)
         except Exception as e:
-            print(e)
-            print("예약실패")
-            results.append([data['date'], "fail"])
-    return results
+            app.logger.error("예약실패: " +  data['date'] + ", " + data['startTime'] + "~" + data['endTime'])
+            app.logger.error(e)
 
+            results += data['date'] + ": " + "예약 실패\n"
+    return results
 
 def save_reserve(json_data):
     _songName = json_data['songName']
@@ -180,14 +209,14 @@ def save_reserve(json_data):
     WHERE date = '{_date}';
             """)
     if result:
-        print(result)
+        # print(result)
         for row in result:
-            print(row)
+            # print(row)
             if row[2] <= _startTime and row[3] > _startTime:
-                print("예약중복")
+                # print("예약중복")
                 return "overlap"
             elif row[2] < _endTime and row[3] >= _endTime:
-                print("예약중복")
+                # print("예약중복")
                 return "overlap"
     
 
@@ -214,13 +243,13 @@ def cancel():
         DELETE FROM schedule
         WHERE date = '{_date}' AND startTime = '{_startTime}' AND endTime = '{_endTime}';
                """)
-        print("예약취소: ", _date, ", ", _startTime, "~", _endTime)
+        app.logger.info("예약취소: " + _date + ", " + _startTime + "~" + _endTime)
     except:
-        print("예약취소실패")
+        app.logger.error("예약취소 실패: " + _date, ", " + _startTime + "~" + _endTime)
         return "fail"
-    print("예약취소완료.")
     return "success"
 
 if __name__ == '__main__':
     app.debug = True
+    app.logger.info("server on :: PORT=5000")
     app.run(host='0.0.0.0', port=5000)

@@ -6,3 +6,5 @@ cacert-2023-08-22.pem
 cert.pem
 database.env
 /myenv
+/test
+/logs
