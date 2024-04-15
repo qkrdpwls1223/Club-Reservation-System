@@ -183,11 +183,11 @@ def multi_reservation():
             new_schedule = save_reserve(data)
             if new_schedule == "overlap":
                 # print("overlap")
-                results += data['date'] + ": " , "예약 시간 중복\n"
-                app.logger.info("예약중복: " + new_schedule.songName + ", " + new_schedule.date +", " + new_schedule.startTime + "~" + new_schedule.endTime)
+                results += data['date'] + ": " + "예약 시간 중복\n"
+                app.logger.info("예약중복: " + data['date'] + ", " + data['startTime'] + "~" + data['endTime'])
             elif type(new_schedule) == Schedule:
                 schedules.append(new_schedule)
-                results += data['date'] + ": " , "예약 성공\n"
+                results += data['date'] + ": " + "예약 성공\n"
                 app.logger.info("예약성공: " + new_schedule.songName + ", " + new_schedule.date + ", " + new_schedule.startTime + "~" + new_schedule.endTime)
         except Exception as e:
             app.logger.error("예약실패: " +  data['date'] + ", " + data['startTime'] + "~" + data['endTime'])
