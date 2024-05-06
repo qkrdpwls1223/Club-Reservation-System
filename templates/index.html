@@ -4,9 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>바로크 동방 시간표</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="main.css">
     <!-- 서버 연결 스크립트 파일 -->
-    <script type="text/javascript" src="{{ url_for('static', filename='js/reserve.js') }}"></script>
+    <script type="text/javascript" src="reserve.js"></script>
+    
+    <!-- 웹 폰트 로드 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gothic+A1&display=swap" rel="stylesheet">
+
+    <!--jquery 데이트피커-->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+    <link rel="stylesheet" href="datepicker.css">
 </head>
 <body>
     <script>
@@ -15,70 +26,22 @@
     
         // history.replaceState를 사용하여 URL 수정 (브라우저 히스토리에 새로운 상태 추가하지 않음)
         history.replaceState({}, document.title, currentURL);
+
+        // datepicker 한국어로 변경
+        $.datepicker.setDefaults({
+            dateFormat: 'yy-mm-dd',
+            prevText: '이전 달',
+            nextText: '다음 달',
+            monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+            dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+            dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+            showMonthAfterYear: true,
+            yearSuffix: '년'
+        });
     </script>
     <h2 onclick="window.location.pathname = '/schedule'">바로크 동방 예약 시스템</h2>
-    <div class="reserve-form">
-        <fieldset>
-            <legend>예약 정보 입력</legend>
-            <label for="song">노래명: </label>
-            <input type="text" id="songName" placeholder="노래명을 입력하시오.">
-            <br />
-            <label for="song">대표자: </label>
-            <input type="text" id="userName" placeholder="이름을 입력하시오.">
-            <br />
-            <label for="date">날짜: </label>
-            <input type="date" id="date">
-            <script>
-                var today = new Date();
-                
-                // 월이 0부터 시작하므로 1을 더해줌
-                var month = (today.getMonth() + 1).toString().padStart(2, '0');
-                var day = today.getDate().toString().padStart(2, '0');
-                
-                var formattedToday = today.getFullYear() + '-' + month + '-' + day;
-                
-                document.getElementById('date').value = formattedToday;
-            </script>
-            <br />
-            <label for="startHour">시간: </label>
-            <select id="startHour">
-                <script>
-                    for (var h = 6; h <= 25; h++) {
-                        document.write(`<option value="${formatTime(h)}">${formatTime(h)}</option>`)
-                    }
-                    document.getElementById("startHour").value = "09";
-                </script>
-            </select>
-            <label for="startHour">시</label>
-            <select id="startMin">
-                <option value="0">00</option>
-                <option value="30">30</option>
-            </select>
-            <label for="startMin">분</label>
-            <label>~</label>
-            <select id="endHour">
-                <script>
-                    for (var h = 6; h <= 26; h++) {
-                        document.write(`<option value="${formatTime(h)}">${formatTime(h)}</option>`)
-                    }
-                    document.getElementById("endHour").value = "10";
-                </script>
-            </select>
-            <label for="endHour">시</label>
-            <select id="endMin">
-                <option value="0">00</option>
-                <option value="30">30</option>
-            </select>
-            <label for="endMin">분</label>
-            <br />
-            <!-- <div>
-                <label for="pw">비밀번호: </label>
-                <input type="text" id="pw" placeholder="4자리 숫자">
-                <br />
-            </div> -->
-            <button onclick="createSchedule()">예약하기</button>
-        </fieldset>
-    </div>
     <div class="day-term">
         <button onclick="moveWeek(-1, 'schedule')">←</button>
         <label id="day-term-label"></label>
@@ -113,8 +76,8 @@
     <button onclick="window.location.pathname = '/mentoring'">멘토링 시간 추가</button>
     <br />
 
-    <!-- 모달 -->
-    <div id="myModal" class="modal">
+    <!-- 스케줄 정보 표시 모달 -->
+    <div id="schedule-modal" class="modal">
         <label>노래명: </label>
         <label id="modal-content-song"></label>
         <br />
@@ -128,25 +91,54 @@
         <label id="modal-content-time"></label>
         <br />
         <button onclick="reserveCancel()">예약취소</button>
-        <button onclick="closeModal()">닫기</button>
+        <button onclick="setModalDisplay('schedule-modal', 'none')">닫기</button>
     </div>
 
     <!-- 모달 띄울때 배경 검게 해주는 오버레이 -->
     <div id="overlay" class="overlay" onclick="closeModal()"></div>
+    
+    <!-- 모달 불러오기 -->
+    <div class="modal" id="reserve-form-modal"></div>
+    <input type="text" id="test">
+    <script>
+        $(function(){
+            $('#test').datepicker({
+                dateFormat: 'yy-mm-dd'
+            });
+            $('#test').datepicker('setDate', 'today');
+        })
+    </script>
+
+    <script>
+        // 모달을 불러오는 스크립트
+        fetch('reserve_form_modal.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('reserve-form-modal').innerHTML = data;
+                $(function(){
+                    $('#datepicker').datepicker({
+                        dateFormat: 'yy-mm-dd'
+                    });
+                    $('#datepicker').datepicker('setDate', 'today');
+                })
+            });
+    </script>
+    <!-- 예약 폼 모달 띄우는 버튼-->
+    <button class="fixed-button" onclick="setModalDisplay('reserve-form-modal', 'block')">예약</button>
+    
     <!-- 스케줄 로딩하는 스크립트 -->
     <script>
-        var schedule = "{{ schedule }}"
-        var start_day = "{{ start_day }}"
-        var end_day = "{{ end_day }}"
-        //console.log("시작날짜: ", start_day)
-        //console.log("종료날짜: ", end_day)
+        var schedule = "[&#39;{&#34;date&#34;: &#34;2024-05-03&#34;, &#34;startTime&#34;: &#34;18:00&#34;, &#34;endTime&#34;: &#34;19:00&#34;, &#34;songName&#34;: &#34;\uba58\ud1a0\ub9c1&#34;, &#34;userName&#34;: &#34;&#34;, &#34;color&#34;: &#34;#58ACFA&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-04-30&#34;, &#34;startTime&#34;: &#34;18:00&#34;, &#34;endTime&#34;: &#34;18:30&#34;, &#34;songName&#34;: &#34;\uba58\ud1a0\ub9c1&#34;, &#34;userName&#34;: &#34;&#34;, &#34;color&#34;: &#34;#58ACFA&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-01&#34;, &#34;startTime&#34;: &#34;17:00&#34;, &#34;endTime&#34;: &#34;17:30&#34;, &#34;songName&#34;: &#34;\uba58\ud1a0\ub9c1&#34;, &#34;userName&#34;: &#34;&#34;, &#34;color&#34;: &#34;#58ACFA&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-01&#34;, &#34;startTime&#34;: &#34;15:00&#34;, &#34;endTime&#34;: &#34;16:00&#34;, &#34;songName&#34;: &#34;\uba58\ud1a0\ub9c1&#34;, &#34;userName&#34;: &#34;&#34;, &#34;color&#34;: &#34;#58ACFA&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-02&#34;, &#34;startTime&#34;: &#34;11:00&#34;, &#34;endTime&#34;: &#34;12:00&#34;, &#34;songName&#34;: &#34;\uba58\ud1a0\ub9c1&#34;, &#34;userName&#34;: &#34;&#34;, &#34;color&#34;: &#34;#58ACFA&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-01&#34;, &#34;startTime&#34;: &#34;17:30&#34;, &#34;endTime&#34;: &#34;19:00&#34;, &#34;songName&#34;: &#34;\uba58\ud1a0\ub9c1&#34;, &#34;userName&#34;: &#34;&#34;, &#34;color&#34;: &#34;#58ACFA&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-04-29&#34;, &#34;startTime&#34;: &#34;19:30&#34;, &#34;endTime&#34;: &#34;20:00&#34;, &#34;songName&#34;: &#34;\uba58\ud1a0\ub9c1&#34;, &#34;userName&#34;: &#34;\uc8fc\uc6d0\uc9c4&#34;, &#34;color&#34;: &#34;#58ACFA&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-03&#34;, &#34;startTime&#34;: &#34;19:00&#34;, &#34;endTime&#34;: &#34;21:00&#34;, &#34;songName&#34;: &#34;\uc548\ud2f0\ud504\ub9ac\uc988&#34;, &#34;userName&#34;: &#34;\uc870\uc7ac\ud601&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-03&#34;, &#34;startTime&#34;: &#34;21:00&#34;, &#34;endTime&#34;: &#34;23:00&#34;, &#34;songName&#34;: &#34;\ub9c1\ub9c1&#34;, &#34;userName&#34;: &#34;\uc870\uc7ac\ud601&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-02&#34;, &#34;startTime&#34;: &#34;18:00&#34;, &#34;endTime&#34;: &#34;20:00&#34;, &#34;songName&#34;: &#34;Back in time&#34;, &#34;userName&#34;: &#34;\uc774\uc2b9\ud604&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-01&#34;, &#34;startTime&#34;: &#34;19:00&#34;, &#34;endTime&#34;: &#34;21:00&#34;, &#34;songName&#34;: &#34;\ub178\ud398\uc778&#34;, &#34;userName&#34;: &#34;\uc870\uc7ac\ud601&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-04&#34;, &#34;startTime&#34;: &#34;08:00&#34;, &#34;endTime&#34;: &#34;10:00&#34;, &#34;songName&#34;: &#34;\ub514\uc2a4\ucf54\ub4dc&#34;, &#34;userName&#34;: &#34;\ubc15\uc608\uc9c4&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-02&#34;, &#34;startTime&#34;: &#34;20:00&#34;, &#34;endTime&#34;: &#34;22:00&#34;, &#34;songName&#34;: &#34;The Lonliest&#34;, &#34;userName&#34;: &#34;\uae40\uacbd\ud6c8&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-04-30&#34;, &#34;startTime&#34;: &#34;21:00&#34;, &#34;endTime&#34;: &#34;23:00&#34;, &#34;songName&#34;: &#34;\uc2dc\ud37c\ub7f0 \ubd04&#34;, &#34;userName&#34;: &#34;\ub178\uacbd\uc740&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-01&#34;, &#34;startTime&#34;: &#34;16:00&#34;, &#34;endTime&#34;: &#34;17:00&#34;, &#34;songName&#34;: &#34;\uba58\ud1a0\ub9c1&#34;, &#34;userName&#34;: &#34;\ubb38\uc7ac\uc131&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-02&#34;, &#34;startTime&#34;: &#34;23:00&#34;, &#34;endTime&#34;: &#34;24:00&#34;, &#34;songName&#34;: &#34;\uc6b0\ub9ac\uc758\ubc24&#34;, &#34;userName&#34;: &#34;\ubc15\uc131\ud658&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-01&#34;, &#34;startTime&#34;: &#34;21:00&#34;, &#34;endTime&#34;: &#34;22:00&#34;, &#34;songName&#34;: &#34;Rewrite the stars&#34;, &#34;userName&#34;: &#34;\ubc15\uc131\ud658&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-02&#34;, &#34;startTime&#34;: &#34;22:00&#34;, &#34;endTime&#34;: &#34;23:00&#34;, &#34;songName&#34;: &#34;\uc2dc\ud37c\ub7f0 \ubd04&#34;, &#34;userName&#34;: &#34;\ub178\uacbd\uc740&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-03&#34;, &#34;startTime&#34;: &#34;10:00&#34;, &#34;endTime&#34;: &#34;13:00&#34;, &#34;songName&#34;: &#34;\uc6ec\ub514 WISH YOU HELL&#34;, &#34;userName&#34;: &#34;\uc815\ub2e4\uc740&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-05&#34;, &#34;startTime&#34;: &#34;14:00&#34;, &#34;endTime&#34;: &#34;17:00&#34;, &#34;songName&#34;: &#34;\uac1c\ud654&#34;, &#34;userName&#34;: &#34;\ucd5c\uc6d0\uc11d&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-04-30&#34;, &#34;startTime&#34;: &#34;23:00&#34;, &#34;endTime&#34;: &#34;24:00&#34;, &#34;songName&#34;: &#34;\uc778\uc0ac&#34;, &#34;userName&#34;: &#34;\uc131\ubbfc&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-01&#34;, &#34;startTime&#34;: &#34;22:00&#34;, &#34;endTime&#34;: &#34;24:00&#34;, &#34;songName&#34;: &#34;\uc640\ub9ac\uac00\ub9ac&#34;, &#34;userName&#34;: &#34;\ubc15\uc608\uc9c4&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-04-29&#34;, &#34;startTime&#34;: &#34;20:00&#34;, &#34;endTime&#34;: &#34;22:00&#34;, &#34;songName&#34;: &#34;\uace0\ubc31&#34;, &#34;userName&#34;: &#34;\uc8fc\uc6d0\uc9c4&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-02&#34;, &#34;startTime&#34;: &#34;16:00&#34;, &#34;endTime&#34;: &#34;18:00&#34;, &#34;songName&#34;: &#34;\ud788\uc5b4\ub85c&#34;, &#34;userName&#34;: &#34;\uc774\uc720\ucc2c&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-03&#34;, &#34;startTime&#34;: &#34;25:00&#34;, &#34;endTime&#34;: &#34;26:00&#34;, &#34;songName&#34;: &#34;\uac1c\ud654&#34;, &#34;userName&#34;: &#34;\ucd5c\uc6d0\uc11d&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-04-30&#34;, &#34;startTime&#34;: &#34;19:00&#34;, &#34;endTime&#34;: &#34;20:00&#34;, &#34;songName&#34;: &#34;\uc88b\uc9c0\uc544\ub2c8\ud55c\uac00&#34;, &#34;userName&#34;: &#34;\uac15\uc724\uae30&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-01&#34;, &#34;startTime&#34;: &#34;12:00&#34;, &#34;endTime&#34;: &#34;14:00&#34;, &#34;songName&#34;: &#34;\uc2dc\uc791&#34;, &#34;userName&#34;: &#34;\uc8fc\uc6d0\uc9c4&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-01&#34;, &#34;startTime&#34;: &#34;14:00&#34;, &#34;endTime&#34;: &#34;15:00&#34;, &#34;songName&#34;: &#34;\uba58\ud1a0&#34;, &#34;userName&#34;: &#34;\ubb38\uc7ac\uc131&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-02&#34;, &#34;startTime&#34;: &#34;24:00&#34;, &#34;endTime&#34;: &#34;25:00&#34;, &#34;songName&#34;: &#34;\ube44\uc640 \ub2f9\uc2e0&#34;, &#34;userName&#34;: &#34;\ucd5c\uc6d0\uc11d&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-05&#34;, &#34;startTime&#34;: &#34;22:00&#34;, &#34;endTime&#34;: &#34;24:00&#34;, &#34;songName&#34;: &#34;\ube44\uc640 \ub2f9\uc2e0&#34;, &#34;userName&#34;: &#34;\ucd5c\uc6d0\uc11d&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-02&#34;, &#34;startTime&#34;: &#34;25:00&#34;, &#34;endTime&#34;: &#34;26:00&#34;, &#34;songName&#34;: &#34;\uc778\uc0ac&#34;, &#34;userName&#34;: &#34;\uc625\uc131\ubbfc&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-03&#34;, &#34;startTime&#34;: &#34;15:00&#34;, &#34;endTime&#34;: &#34;17:00&#34;, &#34;songName&#34;: &#34;The lonliest&#34;, &#34;userName&#34;: &#34;\uae40\uacbd\ud6c8&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-02&#34;, &#34;startTime&#34;: &#34;13:00&#34;, &#34;endTime&#34;: &#34;14:00&#34;, &#34;songName&#34;: &#34;\uba58\ud1a0\ub9c1&#34;, &#34;userName&#34;: &#34;\uc815\uc0c1\ud6c8&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-03&#34;, &#34;startTime&#34;: &#34;14:00&#34;, &#34;endTime&#34;: &#34;15:00&#34;, &#34;songName&#34;: &#34;\uace0\ubc31&#34;, &#34;userName&#34;: &#34;\uc8fc\uc6d0\uc9c4&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;, &#39;{&#34;date&#34;: &#34;2024-05-04&#34;, &#34;startTime&#34;: &#34;15:30&#34;, &#34;endTime&#34;: &#34;16:30&#34;, &#34;songName&#34;: &#34;\uc6b0\ub9ac\uc758\ubc24&#34;, &#34;userName&#34;: &#34;\ubc15\uc131\ud658&#34;, &#34;color&#34;: &#34;#F7FE2E&#34;}&#39;]"
+        var start_day = "2024-04-29"
+        var end_day = "2024-05-05"
+
         setDayTerm(start_day,end_day)
         const decodedJsonString = schedule.replace(/&#34;/g, '"').replace(/&#39;/g, ""); // &#39;을 '로 변환
         //console.log(decodedJsonString)
 
         try {
             const data = JSON.parse(decodedJsonString);
-            console.log(data)
+
             for (const row of data) {
                 if (row.color == undefined) {
                     row.color = "#F7FE2E"
