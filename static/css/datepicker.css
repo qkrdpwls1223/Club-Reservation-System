@@ -5,7 +5,9 @@
     font-weight: 700;
 }
 .ui-widget.ui-widget-content {
-    border: none;
+    border: 1px solid #FFE880;
+    border-radius: 3%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 .ui-datepicker-header {
     background-color: #F2CB05;
@@ -35,20 +37,13 @@
 .ui-icon.ui-icon-circle-triangle-w {
     width: 16px;
     height: 16px;
-    background-image: url('images/arrow-left.png');
-    background-position: 0px 0px
-}
-
-.ui-icon.ui-icon-circle-triangle-w {
-    width: 16px;
-    height: 16px;
-    background-image: url('images/arrow-left.png');
+    background-image: url('../images/arrow-left.png');
     background-position: 0px 0px
 }
 
 .ui-icon.ui-icon-circle-triangle-e {
     width: 16px;
     height: 16px;
-    background-image: url('images/arrow-right.png');
+    background-image: url('../images/arrow-right.png');
     background-position: 0px 0px
 }

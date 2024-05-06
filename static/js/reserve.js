@@ -66,18 +66,14 @@ function sendJSONList(jsonList, callback) {
 }
 
 function createSchedule() {
-    var date = document.getElementById('date').value
+    var date = document.getElementById('datepicker').value
     var songName = document.getElementById('songName').value
     var userName = document.getElementById('userName').value
-    var startHour = document.getElementById('startHour').value
-    var startMin = document.getElementById('startMin').value
-    var endHour = document.getElementById('endHour').value
-    var endMin = document.getElementById('endMin').value
+    var startTime = document.getElementById('startTime').value
+    var endTime = document.getElementById('endTime').value
 
-    var startTime = formatTime(startHour) + ":" + formatTime(startMin)
-    var endTime = formatTime(endHour) + ":" + formatTime(endMin)
-    console.log(date)
-    console.log("시작시간: " + startTime + ", 종료시간: " + endTime)
+    //console.log(date)
+    //console.log("시작시간: " + startTime + ", 종료시간: " + endTime)
 
     if (startTime == endTime) {
         alert("예약 실패: 시작시간과 종료시간이 같습니다.")
@@ -220,7 +216,7 @@ function addDivToCell(songName, userName, date, startTime, endTime, color) {
 
         // 이벤트 추가
         div.onclick = function() {
-            showModal(songName, userName, date, `${startTime}~${endTime}`)
+            showScheduleModal(songName, userName, date, `${startTime}~${endTime}`)
         }
 
         var p = document.createElement('p');
@@ -230,26 +226,47 @@ function addDivToCell(songName, userName, date, startTime, endTime, color) {
     };
 }
 
-function showModal(songName, userName, date, time) {
-    var modal = document.getElementById('myModal');
+function openReserveModal() {
+    var modal = document.getElementById("reserve-form-modal");
+    modal.style.display = 'flex';
+    document.getElementById("main-timetable").style.marginBottom = "75%";
+}
+
+function closeReserveModal() {
+    var modal = document.getElementsByClassName("reserve-form-modal")[0];
+    modal.classList.add('slide-down');
+    modal.addEventListener('animationend', function() {
+        modal.style.display = 'none';
+        document.getElementById("main-timetable").style.marginBottom = "0%";
+        modal.classList.remove('slide-down');
+    }, {once: true});
+}
+
+function openDetailModal() {
+    var modal = document.getElementById("schedule-modal");
     var overlay = document.getElementById('overlay');
+
+    modal.style.display = 'block';
+    overlay.style.display = 'block';
+}
+
+function closeDetailModal() {
+    var modal = document.getElementById("schedule-modal");
+    var overlay = document.getElementById('overlay');
+
+    modal.style.display = 'none';
+    overlay.style.display = 'none';
+}
+
+function showScheduleModal(songName, userName, date, time) {
+    // 모달에 표시할 데이터 입력
     document.getElementById('modal-content-song').innerHTML = songName
     document.getElementById('modal-content-user').innerHTML = userName
     document.getElementById('modal-content-date').innerHTML = date
     document.getElementById('modal-content-time').innerHTML = time
 
-    // 모달과 오버레이 표시
-    modal.style.display = 'block';
-    overlay.style.display = 'block';
-}
-
-function closeModal() {
-    var modal = document.getElementById('myModal');
-    var overlay = document.getElementById('overlay');
-
-    // 모달과 오버레이 숨김
-    modal.style.display = 'none';
-    overlay.style.display = 'none';
+    // 모달과 배경을 어둡게하는 오버레이 표시
+    openDetailModal('schedule-modal', 'block')
 }
 
 function reserveCancel() {
