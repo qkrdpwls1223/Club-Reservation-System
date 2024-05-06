@@ -1,0 +1,49 @@
+.ui-datepicker-div {
+    background-color: transparent;
+}
+.ui-datepicker-title, .ui-datepicker-title span {
+    font-weight: 700;
+}
+.ui-widget.ui-widget-content {
+    border: 1px solid #FFE880;
+    border-radius: 3%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.ui-datepicker-header {
+    background-color: #F2CB05;
+    font-weight: 700;
+    border: none;
+}
+.ui-datepicker-calendar thead {
+    color: #f2b305;
+    font-weight: 600;
+}
+.ui-widget-content .ui-state-default {
+    font-weight: 600;
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    aspect-ratio: 1;
+}
+
+.ui-state-active, .ui-widget-content .ui-state-active {
+    background-color: #F2CB05;
+    color: #FFF;
+}
+
+.ui-icon.ui-icon-circle-triangle-w {
+    width: 16px;
+    height: 16px;
+    background-image: url('../images/arrow-left.png');
+    background-position: 0px 0px
+}
+
+.ui-icon.ui-icon-circle-triangle-e {
+    width: 16px;
+    height: 16px;
+    background-image: url('../images/arrow-right.png');
+    background-position: 0px 0px
+}

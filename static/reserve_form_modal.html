@@ -1,0 +1,33 @@
+
+<div class="reserve-form">
+    <div class="field-div">
+        <label for="song">노래명</label>
+        <input type="text" id="songName" placeholder="노래명을 입력하시오.">
+        <label for="song">대표자</label>
+        <input type="text" id="userName" placeholder="이름을 입력하시오.">
+        <label for="datepicker">날짜</label>
+        <input type="text" id="datepicker">
+        <!-- <script>
+            var today = new Date();
+            
+            // 월이 0부터 시작하므로 1을 더해줌
+            var month = (today.getMonth() + 1).toString().padStart(2, '0');
+            var day = today.getDate().toString().padStart(2, '0');
+            
+            var formattedToday = today.getFullYear() + '-' + month + '-' + day;
+            
+            document.getElementById('date').value = formattedToday;
+        </script> -->
+        <label for="time-selecter">시간</label>
+        <div id="time-selecter"></div>
+        <!-- <div>
+            <label for="pw">비밀번호: </label>
+            <input type="text" id="pw" placeholder="4자리 숫자">
+            <br />
+        </div> -->
+    </div>
+    <div id="button-group">
+        <button id="btnReserve">예약</button>
+        <button id="btnCancel" onclick="createSchedule()">취소</button>
+    </div>
+</div>
