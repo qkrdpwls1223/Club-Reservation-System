@@ -179,6 +179,12 @@ function createMentoring() {
     })
 }
 
+function timeInterval(a, b) {
+    var heightA = a[0] * 100 + (a[1] == '00' ? 0 : 50);
+    var heightB = b[0] * 100 + (b[1] == '00' ? 0 : 50);
+    return Math.abs(heightA - heightB);
+}
+
 function addDivToCell(songName, userName, date, startTime, endTime, color) {
     // 요일 전처리
     var currentDate = new Date(date);
@@ -196,20 +202,16 @@ function addDivToCell(songName, userName, date, startTime, endTime, color) {
     if (cell) {
         var div = document.createElement('div');
         div.className = 'box';
-        div.style.height = String(100 * (end[0] - start[0])) + '%'
+        div.style.height = String(timeInterval(start, end)) + '%'
         //console.log(songName + ":" + end[1])
         //console.log(startTime + "~" + endTime)
         // 시작시간이 n시 30분부터 시작할 때
+
         if (start[1] == '30') {
             div.style.top = '50%'
-            if (end[1] == '00') {
-                div.style.height = parseInt(div.style.height) - 50 + '%'
-            }
         }
         // 종료시간이 n시 30분까지일 때
-        if (end[1] == '30') {
-            div.style.height = parseInt(div.style.height) + 50 + '%'
-        }
+        
 
         // 배경색 설정
         div.style.backgroundColor = color
