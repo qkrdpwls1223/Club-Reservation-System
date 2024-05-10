@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, jsonify
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import json
@@ -112,10 +112,15 @@ def index():
 
 
     #print(sun, "~", sat)
-    result = db_connect(f"""
-        SELECT * FROM schedule
-        WHERE date BETWEEN '{sun}' AND '{sat}';
-               """)
+    try:
+        result = db_connect(f"""
+            SELECT * FROM schedule
+            WHERE date BETWEEN '{sun}' AND '{sat}';
+                """)
+    except MySQLdb.Error as e:
+        app.logger.error("요청실패: DB 연결 실패")
+        app.logger.error(e)
+        return jsonify({"error": "서버 오류로 인해 요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요."}), 500
     #print(result)
 
     schedule = []
