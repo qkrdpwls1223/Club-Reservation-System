@@ -57,13 +57,14 @@ def db_connect(sql):
         # Fetch all the rows
         result = cursor.fetchall()
 
-    except MySQLdb.Error as e:
-        raise MySQLdb.Error
-    finally:
         # Close the cursor and connection
         cursor.close()
         return result
 
+    except MySQLdb.Error as e:
+        cursor.close()
+        raise MySQLdb.Error
+        
 app = Flask(__name__)
 
 schedules = []
