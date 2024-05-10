@@ -66,6 +66,7 @@ def db_connect(sql):
         raise MySQLdb.Error
         
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False  # 유니코드 설정
 
 schedules = []
 
