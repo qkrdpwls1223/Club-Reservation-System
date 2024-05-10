@@ -28,7 +28,7 @@
 <br />
 
 ## 배포 주소
-- http://ec2-16-16-178-160.eu-north-1.compute.amazonaws.com:5000/schedule
+- http://ec2-3-37-161-221.ap-northeast-2.compute.amazonaws.com:5000/
 <br />
 <br />
 
@@ -40,53 +40,55 @@
 <br />
 
 ## 업데이트 내역
-### 1.0.0 (2023.11.10)
-- 최초 배포
 
-
-
+#### 1.2.1 (2024.05.10) - Latest
+- 버그 수정: 시간표 박스 표시 오류 수정
+### 1.2.0 (2024.05.07) 
+- 디자인 변경: 메인 테마 컬러를 노란색으로 지정, 폰트 변경
+- 예약 폼 UI 변경: 맨 위에 항상 배치되어있던 예약 폼을 모달로 변경하여 버튼을 누르면 나타나도록 변경
+#### 1.1.2 (2024.05.05)
+- 수정: 새로고침 시 오늘 날짜로 가는 기능 삭제 (편할줄 알았는데 오히려 불편하다는 문의가 들어옴.)
+#### 1.1.1 (2024.4.14)
+- 코드 리팩토링: 디버깅 코드 삭제, 파일 분리, 중복 코드 통합
+- 로깅 추가: 서버의 로그를 파일에 출력하게끔 변경
 ### 1.1.0 (2024.04.10)
 - 멘토링 예약 기능: 매 주 진행하는 멘토링 특성상 일일이 입력하기 번거로워 멘토링 기간과 요일, 시간을 입력하면 한번에 예약할 수 있는 기능
 - 색깔로 일반 예약, 멘토링 구분: 일반 예약은 노란색, 멘토링은 파란색으로 구분되게끔 변경
 - 버그 수정: 시간표 표시 오류 수정
-#### 1.1.1 (2024.4.14)
-- 코드 리팩토링: 디버깅 코드 삭제, 파일 분리, 중복 코드 통합
-- 로깅 추가: 서버의 로그를 파일에 출력하게끔 변경
-#### 1.1.2 (2024.05.05)
-- 수정: 새로고침 시 오늘 날짜로 가는 기능 삭제 (편할줄 알았는데 오히려 불편하다는 문의가 들어옴.)
-
-
-
-### 1.2.0 (2024.05.07) 
-- 디자인 변경: 메인 테마 컬러를 노란색으로 지정, 폰트 변경
-- 예약 폼 UI 변경: 맨 위에 항상 배치되어있던 예약 폼을 모달로 변경하여 버튼을 누르면 나타나도록 변경
-<br />
-<br />
+### 1.0.0 (2023.11.10)
+- 최초 배포
+<br /><br />
 
 ## 설치 및 실행 방법
 
 ### Linux:
-### 1. 라이브러리 설치
+### 1. 패키지 설치
+```
+sudo apt-get install python3 python3-pip pkg-config python3-dev default-libmysqlclient-dev build-essential gunicorn
+```
+### 2. 프로젝트 복사
 ```
 git clone https://github.com/qkrdpwls1223/Club-Reservation-System.git
 cd Club-Reservation-System
+```
+### 3. 파이썬 라이브러리 설치
+```
 pip insatll -r requirments.txt
 ```
-### 2. 실행
-```
-sudo apt-get install gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 app:app --timeout=30
-```
-### 3. ignore된 파일
-DB 계정 정보가 있는 .env 파일 생성
+### 4. 데이터베이스 설정 파일 추가
+.env 파일 생성
 ```
 touch database.env
 vim database.env (텍스트 편집기)
 ```
-database.env에 들어갈 내용
+database.env 파일에 DB 설정값 입력
 ```env
 DATABASE_HOST='your_host'
 DATABASE_USERNAME='your_db_username'
 DATABASE_PASSWORD='your_db_pw'
 DATABASE='your_db_name'
+```
+### 5. 실행
+```
+gunicorn -w 4 -b 0.0.0.0:5000 app:app --timeout=30
 ```
