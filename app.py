@@ -63,7 +63,23 @@ def db_connect(sql):
 
     except MySQLdb.Error as e:
         cursor.close()
-        raise MySQLdb.Error
+        try:
+            # Create a cursor to interact with the database
+            cursor = connection.cursor()
+
+            # Execute "SHOW TABLES" query
+            #print(sql)
+            cursor.execute(sql)
+            # Fetch all the rows
+            result = cursor.fetchall()
+
+            # Close the cursor and connection
+            cursor.close()
+            return result
+
+        except MySQLdb.Error as e:
+            cursor.close()
+            raise MySQLdb.Error
         
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False  # 유니코드 설정
@@ -116,13 +132,13 @@ def index():
     #print(sun, "~", sat)
     try:
         result = db_connect(f"""
-            SELECT * FROM schedule
+            SELECT * FROM schedules
             WHERE date BETWEEN '{sun}' AND '{sat}';
                 """)
     except MySQLdb.Error as e:
         app.logger.error("요청실패: DB 연결 실패")
         app.logger.error(e)
-        return jsonify({"error": "서버 오류로 인해 요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요."}), 500
+        return render_template("error.html")
     #print(result)
 
     schedule = []
