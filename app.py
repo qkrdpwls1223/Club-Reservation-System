@@ -63,23 +63,7 @@ def db_connect(sql):
 
     except MySQLdb.Error as e:
         cursor.close()
-        try:
-            # Create a cursor to interact with the database
-            cursor = connection.cursor()
-
-            # Execute "SHOW TABLES" query
-            #print(sql)
-            cursor.execute(sql)
-            # Fetch all the rows
-            result = cursor.fetchall()
-
-            # Close the cursor and connection
-            cursor.close()
-            return result
-
-        except MySQLdb.Error as e:
-            cursor.close()
-            raise MySQLdb.Error
+        raise MySQLdb.Error
         
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False  # 유니코드 설정
