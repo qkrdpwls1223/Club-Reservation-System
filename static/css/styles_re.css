@@ -1,0 +1,165 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    margin: 0;
+    background-color: #f4f4f4;
+    overflow-y: auto;
+}
+
+.container {
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 375px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+h1 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 18px;
+}
+
+h2, h3 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 16px;
+}
+
+input {
+    margin-bottom: 10px;
+    padding: 8px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    padding: 8px;
+    font-size: 14px;
+    width: 100%;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.date-slot, .time-slot {
+    width: 100%;
+    background-color: #f0f0f0;
+    color: black;
+    margin-bottom: 8px;
+    border-radius: 4px;
+}
+
+.date-slot:hover, .time-slot:hover {
+    background-color: #ddd;
+}
+
+#calendar-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    justify-content: center;
+    max-width: 375px;
+    margin-left: -10px; /* Move calendar 10px to the left */
+}
+
+#calendar-container div {
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 4px;
+    height: 40px; /* Adjust height to match time slots */
+    line-height: 40px; /* Center text vertically */
+}
+
+#calendar-container .selected {
+    background-color: #28a745;
+    color: white;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+#calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#calendar-header button {
+    width: auto;
+    padding: 5px 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#calendar-header button:hover {
+    background-color: #0056b3;
+}
+
+#days-of-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 5px;
+    justify-content: center;
+    max-width: 375px;
+    margin-left: -10px; /* Move days of the week 10px to the left */
+}
+
+#days-of-week div {
+    text-align: center;
+    font-weight: bold;
+    height: 40px; /* Adjust height to match time slots */
+    line-height: 40px; /* Center text vertically */
+}
+
+.time-section {
+    margin-bottom: 10px;
+}
+
+.time-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.time-slot {
+    flex: 1 1 30%;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    height: 40px; /* Maintain consistent height for time slots */
+    line-height: 24px; /* Center text vertically */
+}
+
+.time-slot:hover, .time-slot.selected {
+    background-color: #28a745;
+    color: white;
+}
+
+.time-slot.disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}

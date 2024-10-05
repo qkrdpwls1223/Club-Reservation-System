@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>동방 합주 시간표</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_re.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>동방 합주 시간표</h1>
+        <div id="calendar">
+            <div id="calendar-header">
+                <button id="prev-month">이전</button>
+                <span id="month-year"></span>
+                <button id="next-month">다음</button>
+            </div>
+            <div id="days-of-week"></div>
+            <div id="calendar-container"></div>
+        </div>
+        <div id="time-selection" style="display: none;">
+            <h2>예약 가능한 시간</h2>
+            <div class="time-section">
+                <h3>오전</h3>
+                <div id="time-buttons-am" class="time-buttons"></div>
+            </div>
+            <div class="time-section">
+                <h3>오후</h3>
+                <div id="time-buttons-pm" class="time-buttons"></div>
+            </div>
+        </div>
+        <div id="reservation-form" style="display: none;">
+            <h2>팀명과 대표자 이름을 입력하세요</h2>
+            <input type="text" id="team-name" placeholder="팀명">
+            <input type="text" id="user-name" placeholder="대표자 이름">
+            <button id="submit-button">예약하기</button>
+        </div>
+        <div id="cancel-form" style="display: none;">
+            <h2>예약정보</h2>
+            <p id="cancel-team-name"></p>
+            <p id="cancel-user-name"></p>
+            <button id="cancel-button">취소하기</button>
+        </div>
+        <div id="selected-date-time" style="display: none;">
+            <div style="display: inline-block;">
+                <label style="display: inline;">날짜: </label>
+                <p id="selected-date" style="display: inline; margin: 0;"></p>
+            </div>
+            <br>
+            <div style="display: inline-block;">
+                <label style="display: inline;">시간: </label>
+                <p id="selected-time" style="display: inline; margin: 0;"></p>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script_re.js') }}"></script>
+</body>
+</html>

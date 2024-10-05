@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>동방 합주 시간표</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/locale/ko.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+</head>
+<body>
+    <div class="reservation-container">
+        <div class="reservation-form">
+            <h1>동방 합주 시간표</h1>
+            <form id="reservationForm">
+                <input type="text" id="representativeName" placeholder="대표자명" required>
+                <input type="text" id="teamName" placeholder="팀명" required>
+                <input type="text" id="date" placeholder="날짜 선택" required>
+                <select id="time" required>
+                    <option value="">시간 선택</option>
+                    <option value="01:00~01:50">01:00~01:50</option>
+                    <option value="02:00~02:50">02:00~02:50</option>
+                    <option value="03:00~03:50">03:00~03:50</option>
+                    <option value="04:00~04:50">04:00~04:50</option>
+                    <option value="05:00~05:50">05:00~05:50</option>
+                    <option value="06:00~06:50">06:00~06:50</option>
+                    <option value="07:00~07:50">07:00~07:50</option>
+                    <option value="08:00~08:50">08:00~08:50</option>
+                    <option value="09:00~09:50">09:00~09:50</option>
+                    <option value="10:00~10:50">10:00~10:50</option>
+                    <option value="11:00~11:50">11:00~11:50</option>
+                    <option value="12:00~12:50">12:00~12:50</option>
+                    <option value="13:00~13:50">13:00~13:50</option>
+                    <option value="14:00~14:50">14:00~14:50</option>
+                    <option value="15:00~15:50">15:00~15:50</option>
+                    <option value="16:00~16:50">16:00~16:50</option>
+                    <option value="17:00~17:50">17:00~17:50</option>
+                    <option value="18:00~18:50">18:00~18:50</option>
+                    <option value="19:00~19:50">19:00~19:50</option>
+                    <option value="20:00~20:50">20:00~20:50</option>
+                    <option value="21:00~21:50">21:00~21:50</option>
+                    <option value="22:00~22:50">22:00~22:50</option>
+                    <option value="23:00~23:50">23:00~23:50</option>
+                    <option value="24:00~24:50">24:00~24:50</option>
+                </select>
+                <button type="submit">예약하기</button>
+            </form>
+            <form id="cancelReservationForm">
+                <input type="text" id="cancelTeamName" placeholder="취소할 팀명" required>
+                <input type="text" id="cancelDate" placeholder="취소할 날짜" required>
+                <select id="cancelTime" required>
+                    <option value="">취소할 시간 선택</option>
+                    <option value="01:00~01:50">01:00~01:50</option>
+                    <option value="02:00~02:50">02:00~02:50</option>
+                    <option value="03:00~03:50">03:00~03:50</option>
+                    <option value="04:00~04:50">04:00~04:50</option>
+                    <option value="05:00~05:50">05:00~05:50</option>
+                    <option value="06:00~06:50">06:00~06:50</option>
+                    <option value="07:00~07:50">07:00~07:50</option>
+                    <option value="08:00~08:50">08:00~08:50</option>
+                    <option value="09:00~09:50">09:00~09:50</option>
+                    <option value="10:00~10:50">10:00~10:50</option>
+                    <option value="11:00~11:50">11:00~11:50</option>
+                    <option value="12:00~12:50">12:00~12:50</option>
+                    <option value="13:00~13:50">13:00~13:50</option>
+                    <option value="14:00~14:50">14:00~14:50</option>
+                    <option value="15:00~15:50">15:00~15:50</option>
+                    <option value="16:00~16:50">16:00~16:50</option>
+                    <option value="17:00~17:50">17:00~17:50</option>
+                    <option value="18:00~18:50">18:00~18:50</option>
+                    <option value="19:00~19:50">19:00~19:50</option>
+                    <option value="20:00~20:50">20:00~20:50</option>
+                    <option value="21:00~21:50">21:00~21:50</option>
+                    <option value="22:00~22:50">22:00~22:50</option>
+                    <option value="23:00~23:50">23:00~23:50</option>
+                    <option value="24:00~24:50">24:00~24:50</option>
+                </select>
+                <button type="submit">예약 취소하기</button>
+            </form>
+            <p id="confirmationMessage"></p>
+        </div>
+    </div>
+    <div class="calendar-container">
+        <div id="calendar"></div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

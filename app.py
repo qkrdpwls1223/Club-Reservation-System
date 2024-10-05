@@ -47,23 +47,25 @@ connection = MySQLdb.connect(
 )
 
 def db_connect(sql):
+    cursor = None
+    result = None
     try:
         # Create a cursor to interact with the database
         cursor = connection.cursor()
 
-        # Execute "SHOW TABLES" query
-        #print(sql)
+        # Execute the SQL query
         cursor.execute(sql)
         # Fetch all the rows
         result = cursor.fetchall()
 
-        # Close the cursor and connection
-        cursor.close()
-        return result
-
     except MySQLdb.Error as e:
-        cursor.close()
-        raise MySQLdb.Error
+        raise e
+        
+    finally:
+        if cursor is not None:
+            cursor.close()
+
+    return result
         
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False  # 유니코드 설정
@@ -99,25 +101,18 @@ def format_time(time):
 
 @app.route('/')
 def root():
-    return redirect('schedule')
+    return render_template("/B-T/index.html")
 
 @app.route('/schedule')
 def index():
     date_str = request.args.get("day")
     #print(date_str)
     
-    # 값을 입력했으면 입력한대로, 아니면 오늘
-    if date_str == None:
-        sun, sat = get_week_dates(datetime.now())
-    else:
-        sun, sat = get_week_dates(datetime.strptime(date_str, "%Y-%m-%d"))
-
-
     #print(sun, "~", sat)
     try:
         result = db_connect(f"""
             SELECT * FROM schedule
-            WHERE date BETWEEN '{sun}' AND '{sat}';
+            WHERE date = '{date_str}';
                 """)
     except MySQLdb.Error as e:
         app.logger.error("요청실패: DB 연결 실패")
@@ -129,11 +124,11 @@ def index():
 
     for row in result:
         parsed_date = row[1].strftime("%Y-%m-%d")
-        dict = {'date': parsed_date, 'startTime': row[2], 'endTime': row[3], 'songName': row[4], 'userName': row[5], 'color': row[6]}
+        dict = {'date': parsed_date, 'startTime': row[2], 'endTime': row[3], 'songName': row[4], 'userName': row[5]}
         schedule.append(json.dumps(dict))
     #print(schedule)
     
-    return render_template("index.html", schedule=schedule, start_day=sun, end_day=sat)
+    return schedule
 
 @app.route('/mentoring')
 def mentor():
@@ -209,7 +204,7 @@ def save_reserve(json_data):
     _date = json_data['date']
     _startTime = json_data['startTime']
     _endTime = json_data['endTime']
-    _color = json_data['color']
+    #_color = json_data['color']
 
     result = db_connect(f"""
     SELECT * FROM schedule
@@ -234,18 +229,17 @@ def save_reserve(json_data):
     new_schedule.startTime = format_time(_startTime)
     new_schedule.endTime = format_time(_endTime)
 
-    result = db_connect(f"INSERT INTO schedule (date, startTime, endTime, songName, userName, color) VALUES ('{_date}', '{new_schedule.startTime}', '{new_schedule.endTime}', '{_songName}', '{_userName}', '{_color}');")
+    result = db_connect(f"INSERT INTO schedule (date, startTime, endTime, songName, userName) VALUES ('{_date}', '{new_schedule.startTime}', '{new_schedule.endTime}', '{_songName}', '{_userName}');")
 
     return new_schedule
 
 @app.route('/cancel', methods=["DELETE"])
 def cancel():
-    try:
-        _name = request.json['name']
-        _date = request.json['date']
-        _startTime = request.json['startTime']
-        _endTime = request.json['endTime']
+    _date = request.json['date']
+    _startTime = request.json['startTime']
+    _endTime = request.json['endTime']
 
+    try:
         result = db_connect(f"""
         DELETE FROM schedule
         WHERE date = '{_date}' AND startTime = '{_startTime}' AND endTime = '{_endTime}';
@@ -257,6 +251,6 @@ def cancel():
     return "success"
 
 if __name__ == '__main__':
-    app.debug = True
-    app.logger.info("server on :: PORT=5000")
-    app.run(host='0.0.0.0', port=5000)
+    app.debug = False
+    app.logger.info("server on :: PORT=80")
+    app.run(host='0.0.0.0', port=80)
